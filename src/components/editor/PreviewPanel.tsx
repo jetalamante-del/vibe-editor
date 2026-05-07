@@ -132,7 +132,7 @@ const ProgramPreview: React.FC = () => {
                       }}
                       src={layer.sourcePath}
                       preload="auto"
-                      style={{ display: "none" }}
+                      style={{ position: "absolute", left: -9999, top: -9999, width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
                     />
                   );
                 }
@@ -179,7 +179,36 @@ const ProgramPreview: React.FC = () => {
           <Button variant="ghost" size="icon-sm" onClick={() => seek(Math.max(0, currentTime - step))} title="Previous frame">
             <SkipBack className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon-sm" onClick={() => (isPlaying ? pause() : play())} title={isPlaying ? "Pause" : "Play"}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              if (isPlaying) {
+                pause();
+              } else {
+                // WebKit/Tauri: trigger play() synchronously inside the click handler
+                // so the user-gesture context is preserved for each media element.
+                Object.values(videoRefs.current).forEach((v) => {
+                  if (v) {
+                    v.muted = isMuted || volume === 0;
+                    v.volume = Math.max(0, Math.min(1, volume / 100));
+                    const p = v.play();
+                    if (p && typeof p.catch === "function") void p.catch(() => undefined);
+                  }
+                });
+                Object.values(audioRefs.current).forEach((a) => {
+                  if (a) {
+                    a.muted = isMuted || volume === 0;
+                    a.volume = Math.max(0, Math.min(1, volume / 100));
+                    const p = a.play();
+                    if (p && typeof p.catch === "function") void p.catch(() => undefined);
+                  }
+                });
+                play();
+              }
+            }}
+            title={isPlaying ? "Pause" : "Play"}
+          >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
           <Button variant="ghost" size="icon-sm" onClick={() => seek(Math.min(duration, currentTime + step))} title="Next frame">
