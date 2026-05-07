@@ -26,6 +26,7 @@ const ProgramPreview: React.FC = () => {
   const { tracks, clips } = useTimelineStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(100);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -58,30 +59,34 @@ const ProgramPreview: React.FC = () => {
   );
 
   useEffect(() => {
-    Object.values(videoRefs.current).forEach((video) => {
-      if (!video) return;
-      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
-      const layer = scene.layers.find((l) => l.mediaId === video.dataset.mediaId && l.clipId === video.dataset.clipId);
+    const syncMedia = (media: HTMLMediaElement | null) => {
+      if (!media) return;
+      if (!Number.isFinite(media.duration) || media.duration <= 0) return;
+      const layer = scene.layers.find(
+        (l) => l.mediaId === media.dataset.mediaId && l.clipId === media.dataset.clipId,
+      );
       if (!layer) return;
-      const t = Math.max(0, Math.min(layer.sourceTime, Math.max(0, video.duration - 0.01)));
-      if (Math.abs(video.currentTime - t) > 0.05) video.currentTime = t;
-      video.muted = isMuted || volume === 0;
-      video.volume = Math.max(0, Math.min(1, volume / 100));
+      const t = Math.max(0, Math.min(layer.sourceTime, Math.max(0, media.duration - 0.01)));
+      if (Math.abs(media.currentTime - t) > 0.05) media.currentTime = t;
+      media.muted = isMuted || volume === 0;
+      media.volume = Math.max(0, Math.min(1, volume / 100));
       if (isPlaying) {
         try {
-          const p = video.play();
+          const p = media.play();
           if (p && typeof p.catch === "function") void p.catch(() => undefined);
         } catch {
           // noop in test/jsdom environments
         }
       } else {
         try {
-          video.pause();
+          media.pause();
         } catch {
           // noop
         }
       }
-    });
+    };
+    Object.values(videoRefs.current).forEach(syncMedia);
+    Object.values(audioRefs.current).forEach(syncMedia);
   }, [scene, isPlaying, isMuted, volume]);
 
   if (!project) return null;
@@ -114,39 +119,56 @@ const ProgramPreview: React.FC = () => {
             {scene.layers.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-text-muted">Preview</div>
             ) : (
-              scene.layers.map((layer) => (
-                <div
-                  key={`${layer.clipId}-${layer.mediaId}`}
-                  data-testid="preview-layer"
-                  className="absolute overflow-hidden"
-                  style={{
-                    left: layer.x * scale,
-                    top: layer.y * scale,
-                    width: layer.width * scale,
-                    height: layer.height * scale,
-                    opacity: Math.max(0, Math.min(1, layer.opacity > 1 ? layer.opacity / 100 : layer.opacity)),
-                    transform: `rotate(${layer.rotation}deg)`,
-                    transformOrigin: "center center",
-                    zIndex: layer.zIndex + 1,
-                  }}
-                >
-                  {layer.mediaType === "video" ? (
-                    <video
+              scene.layers.map((layer) => {
+                if (layer.mediaType === "audio") {
+                  return (
+                    <audio
+                      key={`${layer.clipId}-${layer.mediaId}`}
+                      data-testid="preview-layer"
                       data-media-id={layer.mediaId}
                       data-clip-id={layer.clipId}
                       ref={(el) => {
-                        videoRefs.current[`${layer.clipId}-${layer.mediaId}`] = el;
+                        audioRefs.current[`${layer.clipId}-${layer.mediaId}`] = el;
                       }}
                       src={layer.sourcePath}
-                      muted
-                      playsInline
-                      className="w-full h-full object-contain"
+                      preload="auto"
+                      style={{ display: "none" }}
                     />
-                  ) : (
-                    <img src={layer.posterFrame || layer.sourcePath} alt={layer.mediaId} className="w-full h-full object-contain" />
-                  )}
-                </div>
-              ))
+                  );
+                }
+                return (
+                  <div
+                    key={`${layer.clipId}-${layer.mediaId}`}
+                    data-testid="preview-layer"
+                    className="absolute overflow-hidden"
+                    style={{
+                      left: layer.x * scale,
+                      top: layer.y * scale,
+                      width: layer.width * scale,
+                      height: layer.height * scale,
+                      opacity: Math.max(0, Math.min(1, layer.opacity > 1 ? layer.opacity / 100 : layer.opacity)),
+                      transform: `rotate(${layer.rotation}deg)`,
+                      transformOrigin: "center center",
+                      zIndex: layer.zIndex + 1,
+                    }}
+                  >
+                    {layer.mediaType === "video" ? (
+                      <video
+                        data-media-id={layer.mediaId}
+                        data-clip-id={layer.clipId}
+                        ref={(el) => {
+                          videoRefs.current[`${layer.clipId}-${layer.mediaId}`] = el;
+                        }}
+                        src={layer.sourcePath}
+                        playsInline
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <img src={layer.posterFrame || layer.sourcePath} alt={layer.mediaId} className="w-full h-full object-contain" />
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>

@@ -5,7 +5,7 @@ export interface PreviewLayer {
   clipId: string;
   trackId: string;
   mediaId: string;
-  mediaType: "video" | "image";
+  mediaType: "video" | "image" | "audio";
   sourcePath: string;
   posterFrame?: string;
   sourceTime: number;
@@ -45,7 +45,7 @@ export const resolvePreviewScene = ({ tracks, clips, assets, time }: ResolvePrev
     })
     .map((clip) => {
       const asset = assetMap.get(clip.mediaId);
-      if (!asset || (asset.type !== "video" && asset.type !== "image")) return null;
+      if (!asset || (asset.type !== "video" && asset.type !== "image" && asset.type !== "audio")) return null;
       const sourceTime = clip.trimIn + (time - clip.startTime);
 
       // Convert file paths to Tauri-compatible URLs
@@ -73,7 +73,7 @@ export const resolvePreviewScene = ({ tracks, clips, assets, time }: ResolvePrev
       clipId: clip.id,
       trackId: clip.trackId,
       mediaId: clip.mediaId,
-      mediaType: asset.type === "video" ? "video" : "image",
+      mediaType: asset.type === "video" ? "video" : asset.type === "audio" ? "audio" : "image",
       sourcePath,
       posterFrame: asset.posterFrame,
       sourceTime,

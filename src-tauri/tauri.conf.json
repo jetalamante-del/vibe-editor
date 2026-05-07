@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Clypra",
+  "productName": "Vibe Editor",
   "version": "0.1.0",
-  "identifier": "com.clypra.editor",
+  "identifier": "com.jetalamante.vibe-editor",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Clypra",
+        "title": "Vibe Editor",
         "width": 1100,
         "height": 720
       }
@@ -22,7 +22,26 @@
       "assetProtocol": {
         "enable": true,
         "scope": {
-          "allow": ["$HOME/**/*.mp4", "$HOME/**/*.mov", "$HOME/**/*.webm", "$HOME/**/*.mkv", "$HOME/**/*.m4v", "$HOME/**/*.avi", "$DESKTOP/**/*.mp4", "$DESKTOP/**/*.mov", "$DESKTOP/**/*.webm", "$DESKTOP/**/*.mkv", "$DESKTOP/**/*.m4v", "$DESKTOP/**/*.avi", "$DOCUMENT/**/*.mp4", "$DOCUMENT/**/*.mov", "$DOCUMENT/**/*.webm", "$DOCUMENT/**/*.mkv", "$DOCUMENT/**/*.m4v", "$DOCUMENT/**/*.avi", "$DOWNLOAD/**/*.mp4", "$DOWNLOAD/**/*.mov", "$DOWNLOAD/**/*.webm", "$DOWNLOAD/**/*.mkv", "$DOWNLOAD/**/*.m4v", "$DOWNLOAD/**/*.avi", "$VIDEO/**/*.mp4", "$VIDEO/**/*.mov", "$VIDEO/**/*.webm", "$VIDEO/**/*.mkv", "$VIDEO/**/*.m4v", "$VIDEO/**/*.avi", "$PUBLIC/**/*.mp4", "$PUBLIC/**/*.mov", "$PUBLIC/**/*.webm", "$PUBLIC/**/*.mkv", "$PUBLIC/**/*.m4v", "$PUBLIC/**/*.avi", "/Volumes/**/*.mp4", "/Volumes/**/*.mov", "/Volumes/**/*.webm", "/Volumes/**/*.mkv", "/Volumes/**/*.m4v", "/Volumes/**/*.avi"]
+          "allow": [
+            "$HOME/**/*.mp4", "$HOME/**/*.mov", "$HOME/**/*.webm", "$HOME/**/*.mkv", "$HOME/**/*.m4v", "$HOME/**/*.avi",
+            "$HOME/**/*.mp3", "$HOME/**/*.wav", "$HOME/**/*.m4a", "$HOME/**/*.aac", "$HOME/**/*.ogg", "$HOME/**/*.flac",
+            "$HOME/**/*.png", "$HOME/**/*.jpg", "$HOME/**/*.jpeg", "$HOME/**/*.gif", "$HOME/**/*.webp",
+            "$DESKTOP/**/*.mp4", "$DESKTOP/**/*.mov", "$DESKTOP/**/*.webm", "$DESKTOP/**/*.mkv", "$DESKTOP/**/*.m4v", "$DESKTOP/**/*.avi",
+            "$DESKTOP/**/*.mp3", "$DESKTOP/**/*.wav", "$DESKTOP/**/*.m4a", "$DESKTOP/**/*.aac", "$DESKTOP/**/*.ogg", "$DESKTOP/**/*.flac",
+            "$DESKTOP/**/*.png", "$DESKTOP/**/*.jpg", "$DESKTOP/**/*.jpeg", "$DESKTOP/**/*.gif", "$DESKTOP/**/*.webp",
+            "$DOCUMENT/**/*.mp4", "$DOCUMENT/**/*.mov", "$DOCUMENT/**/*.webm", "$DOCUMENT/**/*.mkv", "$DOCUMENT/**/*.m4v", "$DOCUMENT/**/*.avi",
+            "$DOCUMENT/**/*.mp3", "$DOCUMENT/**/*.wav", "$DOCUMENT/**/*.m4a", "$DOCUMENT/**/*.aac", "$DOCUMENT/**/*.ogg", "$DOCUMENT/**/*.flac",
+            "$DOCUMENT/**/*.png", "$DOCUMENT/**/*.jpg", "$DOCUMENT/**/*.jpeg", "$DOCUMENT/**/*.gif", "$DOCUMENT/**/*.webp",
+            "$DOWNLOAD/**/*.mp4", "$DOWNLOAD/**/*.mov", "$DOWNLOAD/**/*.webm", "$DOWNLOAD/**/*.mkv", "$DOWNLOAD/**/*.m4v", "$DOWNLOAD/**/*.avi",
+            "$DOWNLOAD/**/*.mp3", "$DOWNLOAD/**/*.wav", "$DOWNLOAD/**/*.m4a", "$DOWNLOAD/**/*.aac", "$DOWNLOAD/**/*.ogg", "$DOWNLOAD/**/*.flac",
+            "$DOWNLOAD/**/*.png", "$DOWNLOAD/**/*.jpg", "$DOWNLOAD/**/*.jpeg", "$DOWNLOAD/**/*.gif", "$DOWNLOAD/**/*.webp",
+            "$VIDEO/**/*.mp4", "$VIDEO/**/*.mov", "$VIDEO/**/*.webm", "$VIDEO/**/*.mkv", "$VIDEO/**/*.m4v", "$VIDEO/**/*.avi",
+            "$AUDIO/**/*.mp3", "$AUDIO/**/*.wav", "$AUDIO/**/*.m4a", "$AUDIO/**/*.aac", "$AUDIO/**/*.ogg", "$AUDIO/**/*.flac",
+            "$PUBLIC/**/*.mp4", "$PUBLIC/**/*.mov", "$PUBLIC/**/*.webm", "$PUBLIC/**/*.mkv", "$PUBLIC/**/*.m4v", "$PUBLIC/**/*.avi",
+            "$PUBLIC/**/*.mp3", "$PUBLIC/**/*.wav", "$PUBLIC/**/*.m4a", "$PUBLIC/**/*.aac", "$PUBLIC/**/*.ogg", "$PUBLIC/**/*.flac",
+            "/Volumes/**/*.mp4", "/Volumes/**/*.mov", "/Volumes/**/*.webm", "/Volumes/**/*.mkv", "/Volumes/**/*.m4v", "/Volumes/**/*.avi",
+            "/Volumes/**/*.mp3", "/Volumes/**/*.wav", "/Volumes/**/*.m4a", "/Volumes/**/*.aac", "/Volumes/**/*.ogg", "/Volumes/**/*.flac"
+          ]
         }
       }
     }

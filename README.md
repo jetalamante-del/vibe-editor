@@ -1,10 +1,12 @@
-# Clypra
+# Vibe Editor
+
+> Personal fork of [Clypra](https://github.com/AIEraDev/Clypra), rebranded as **Vibe Editor**. Upstream changes can be pulled with `git fetch upstream && git merge upstream/master`.
 
 <div align="center">
 
-![Clypra Logo](https://img.shields.io/badge/Clypra-Video%20Editor-blue?style=for-the-badge)
+![Vibe Editor](https://img.shields.io/badge/Vibe%20Editor-Video%20Editor-blue?style=for-the-badge)
 
-A modern, open-source video editor built with Tauri, React, and TypeScript featuring a professional timeline interface.
+A modern desktop video editor built with Tauri, React, and TypeScript featuring a professional timeline interface.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md) [![GitHub issues](https://img.shields.io/github/issues/AIEraDev/clypra)](https://github.com/AIEraDev/clypra/issues) [![GitHub stars](https://img.shields.io/github/stars/AIEraDev/clypra)](https://github.com/AIEraDev/clypra/stargazers)
 
