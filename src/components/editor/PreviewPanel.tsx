@@ -58,6 +58,19 @@ const ProgramPreview: React.FC = () => {
     [tracks, clips, mediaAssets, currentTime, project],
   );
 
+  // Sync media volume/mute every render — cheap, no playback impact.
+  useEffect(() => {
+    const all = [...Object.values(videoRefs.current), ...Object.values(audioRefs.current)];
+    for (const media of all) {
+      if (!media) continue;
+      media.muted = isMuted || volume === 0;
+      media.volume = Math.max(0, Math.min(1, volume / 100));
+    }
+  }, [isMuted, volume]);
+
+  // Sync play/pause + correct large drifts only. Re-seeking on every tick
+  // (which scene changes do at ~60fps) causes audio to cut out — set a wide
+  // threshold so natural intra-element playback isn't disturbed.
   useEffect(() => {
     const syncMedia = (media: HTMLMediaElement | null) => {
       if (!media) return;
@@ -67,27 +80,31 @@ const ProgramPreview: React.FC = () => {
       );
       if (!layer) return;
       const t = Math.max(0, Math.min(layer.sourceTime, Math.max(0, media.duration - 0.01)));
-      if (Math.abs(media.currentTime - t) > 0.05) media.currentTime = t;
-      media.muted = isMuted || volume === 0;
-      media.volume = Math.max(0, Math.min(1, volume / 100));
+      // Only re-seek on large drifts (>0.5s). Small playback drift is invisible
+      // and seeking interrupts audio decoding.
+      if (Math.abs(media.currentTime - t) > 0.5) media.currentTime = t;
       if (isPlaying) {
-        try {
-          const p = media.play();
-          if (p && typeof p.catch === "function") void p.catch(() => undefined);
-        } catch {
-          // noop in test/jsdom environments
+        if (media.paused) {
+          try {
+            const p = media.play();
+            if (p && typeof p.catch === "function") void p.catch(() => undefined);
+          } catch {
+            // noop in test/jsdom environments
+          }
         }
       } else {
-        try {
-          media.pause();
-        } catch {
-          // noop
+        if (!media.paused) {
+          try {
+            media.pause();
+          } catch {
+            // noop
+          }
         }
       }
     };
     Object.values(videoRefs.current).forEach(syncMedia);
     Object.values(audioRefs.current).forEach(syncMedia);
-  }, [scene, isPlaying, isMuted, volume]);
+  }, [scene, isPlaying]);
 
   if (!project) return null;
 

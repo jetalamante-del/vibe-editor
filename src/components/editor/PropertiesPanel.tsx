@@ -5,7 +5,8 @@ import { useUIStore } from "../../store/uiStore";
 import { useTimelineStore } from "../../store/timelineStore";
 
 export const PropertiesPanel: React.FC = () => {
-  const { selectedClipId } = useUIStore();
+  const { selectedClipIds } = useUIStore();
+  const selectedClipId = selectedClipIds[0] ?? null;
   const { clips, updateClip } = useTimelineStore();
 
   const selectedClip = clips.find((c) => c.id === selectedClipId);
