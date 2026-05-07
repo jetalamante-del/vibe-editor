@@ -188,6 +188,22 @@ const MediaCard: React.FC<MediaCardProps> = ({ asset, isSelected, isUsedInTimeli
             <span>Added</span>
           </div>
         )}
+        {/* Proxy generation status */}
+        {asset.proxyStatus === "pending" && (
+          <div className="absolute top-1 right-1 bg-cyan-900/80 px-1 py-px rounded-[2px] text-[8px] text-white flex items-center gap-1">
+            <span>Optimizing…</span>
+          </div>
+        )}
+        {asset.proxyStatus === "ready" && asset.proxyPath && (
+          <div className="absolute top-1 right-1 bg-emerald-900/80 px-1 py-px rounded-[2px] text-[8px] text-white flex items-center gap-1" title="Using optimized preview">
+            <span>Proxy</span>
+          </div>
+        )}
+        {asset.proxyStatus === "error" && (
+          <div className="absolute top-1 right-1 bg-red-900/80 px-1 py-px rounded-[2px] text-[8px] text-white flex items-center gap-1" title={asset.proxyError}>
+            <span>Proxy err</span>
+          </div>
+        )}
       </div>
       <div className="px-1 py-0.5">
         <p className="text-[10px] font-medium text-text-primary truncate">{asset.name}</p>

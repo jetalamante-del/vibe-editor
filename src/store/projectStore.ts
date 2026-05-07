@@ -8,6 +8,7 @@ interface ProjectStore {
   createProject: (name: string, aspectRatio: string, frameRate: 24 | 30 | 60) => void;
   loadProject: (project: Project) => void;
   addMediaAsset: (asset: MediaAsset) => void;
+  updateMediaAsset: (assetId: string, updates: Partial<MediaAsset>) => void;
   removeMediaAsset: (assetId: string) => void;
   updateProject: (updates: Partial<Project>) => void;
   setRecentProjects: (projects: Project[]) => void;
@@ -71,6 +72,13 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   addMediaAsset: (asset) => {
     set((state) => ({
       mediaAssets: [...state.mediaAssets, asset],
+    }));
+    get().scheduleAutoSave();
+  },
+
+  updateMediaAsset: (assetId, updates) => {
+    set((state) => ({
+      mediaAssets: state.mediaAssets.map((a) => (a.id === assetId ? { ...a, ...updates } : a)),
     }));
     get().scheduleAutoSave();
   },

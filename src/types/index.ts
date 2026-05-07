@@ -35,7 +35,17 @@ export interface Track {
 export interface MediaAsset {
   id: string;
   name: string;
+  /** Original source file path. Always preserved for export. */
   path: string;
+  /**
+   * Optional WebKit-friendly preview file. Used for playback in the editor
+   * when the source codec/format hits WebKit limits (4K HEVC, 24-bit WAV,
+   * etc.). Falls back to `path` when absent. The original is never modified.
+   */
+  proxyPath?: string;
+  /** Lifecycle of the proxy generation job for UI feedback. */
+  proxyStatus?: "none" | "pending" | "ready" | "error";
+  proxyError?: string;
   type: "video" | "audio" | "image";
   duration: number;
   width?: number;

@@ -115,6 +115,28 @@ const App = () => {
         );
 
         useProjectStore.setState({ mediaAssets: convertedAssets });
+
+        // For any imported asset that doesn't yet have a proxy, kick off
+        // generation in the background. Playback uses the original until
+        // the proxy is ready, then switches automatically via the store.
+        for (const asset of convertedAssets) {
+          if ((asset.type === "video" || asset.type === "audio") && !asset.proxyPath && asset.proxyStatus !== "ready") {
+            useProjectStore.getState().updateMediaAsset(asset.id, { proxyStatus: "pending" });
+            const cmd = asset.type === "audio" ? "prepare_audio_proxy" : "prepare_video_proxy";
+            invoke<string>(cmd, { path: asset.path })
+              .then((proxyPath) => {
+                const isProxy = proxyPath !== asset.path;
+                useProjectStore.getState().updateMediaAsset(asset.id, {
+                  proxyPath: isProxy ? proxyPath : undefined,
+                  proxyStatus: "ready",
+                });
+              })
+              .catch((err) => {
+                console.error(`[proxy] ${asset.type} proxy failed for ${asset.name}:`, err);
+                useProjectStore.getState().updateMediaAsset(asset.id, { proxyStatus: "error", proxyError: String(err) });
+              });
+          }
+        }
       }
 
       // Restore tracks and clips directly

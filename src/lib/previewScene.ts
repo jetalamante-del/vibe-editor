@@ -48,8 +48,10 @@ export const resolvePreviewScene = ({ tracks, clips, assets, time }: ResolvePrev
       if (!asset || (asset.type !== "video" && asset.type !== "image" && asset.type !== "audio")) return null;
       const sourceTime = clip.trimIn + (time - clip.startTime);
 
-      // Convert file paths to Tauri-compatible URLs
-      const sourcePath = asset.path ? convertFileSrc(asset.path) : asset.posterFrame || "";
+      // Prefer the proxy file for playback when present (WebKit-friendly format,
+      // generated at import time). Falls back to the original source.
+      const playbackPath = asset.proxyPath || asset.path;
+      const sourcePath = playbackPath ? convertFileSrc(playbackPath) : asset.posterFrame || "";
       if (!sourcePath) return null;
 
       return {

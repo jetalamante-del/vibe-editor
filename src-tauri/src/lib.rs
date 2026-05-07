@@ -785,6 +785,8 @@ pub fn run() {
             extract_poster_frame_command,
             commands::media::get_video_metadata,
             commands::media::extract_poster_frame,
+            commands::media::prepare_audio_proxy,
+            commands::media::prepare_video_proxy,
             commands::project::save_project,
             commands::project::load_project,
             commands::project::get_recent_projects,

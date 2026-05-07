@@ -6,7 +6,24 @@ import type { MediaAsset, VideoMetadata } from "../types";
 
 export const useMediaImport = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { addMediaAsset } = useProjectStore();
+  const { addMediaAsset, updateMediaAsset } = useProjectStore();
+
+  const generateProxy = async (asset: MediaAsset) => {
+    if (asset.type !== "video" && asset.type !== "audio") return;
+    updateMediaAsset(asset.id, { proxyStatus: "pending" });
+    try {
+      const cmd = asset.type === "audio" ? "prepare_audio_proxy" : "prepare_video_proxy";
+      const proxyPath: string = await invoke(cmd, { path: asset.path });
+      const isProxy = proxyPath !== asset.path;
+      updateMediaAsset(asset.id, {
+        proxyPath: isProxy ? proxyPath : undefined,
+        proxyStatus: "ready",
+      });
+    } catch (err) {
+      console.error(`[proxy] ${asset.type} proxy failed for ${asset.name}:`, err);
+      updateMediaAsset(asset.id, { proxyStatus: "error", proxyError: String(err) });
+    }
+  };
 
   const importMedia = async () => {
     try {
@@ -50,8 +67,12 @@ export const useMediaImport = () => {
               height: metadata.height,
               posterFrame,
               size: metadata.size,
+              proxyStatus: "none",
             };
             addMediaAsset(asset);
+            // Kick off proxy generation in the background — playback falls back
+            // to the original until the proxy is ready, then switches automatically.
+            void generateProxy(asset);
           } else {
             // For images, use the convertFileSrc to create a proper asset URL
             const { convertFileSrc } = await import("@tauri-apps/api/core");
