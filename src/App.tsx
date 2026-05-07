@@ -92,16 +92,27 @@ const App = () => {
 
         // Convert posterFrame paths using convertFileSrc
         const { convertFileSrc } = await import("@tauri-apps/api/core");
-        const convertedAssets = fullProjectData.media_assets.map((asset: any) => {
-          if (asset.posterFrame && !asset.posterFrame.startsWith("http") && !asset.posterFrame.startsWith("asset://")) {
-            // Re-convert the posterFrame path
-            return {
-              ...asset,
-              posterFrame: convertFileSrc(asset.path),
-            };
-          }
-          return asset;
-        });
+        const convertedAssets = await Promise.all(
+          fullProjectData.media_assets.map(async (asset: any) => {
+            // Drop legacy giant data URLs (pre-fix posterFrames could be >10 MB and freeze the renderer).
+            if (asset.posterFrame && typeof asset.posterFrame === "string" && asset.posterFrame.startsWith("data:") && asset.posterFrame.length > 100_000) {
+              const { posterFrame: _legacy, ...rest } = asset;
+              // Re-extract a small poster frame on the fly (will be 320px JPEG ~10-30KB)
+              if (asset.type === "video") {
+                const fresh = await invoke<string>("extract_poster_frame", { path: asset.path, time: 0.0 }).catch(() => undefined);
+                return { ...rest, posterFrame: fresh };
+              }
+              return rest;
+            }
+            if (asset.posterFrame && !asset.posterFrame.startsWith("http") && !asset.posterFrame.startsWith("asset://") && !asset.posterFrame.startsWith("data:")) {
+              return {
+                ...asset,
+                posterFrame: convertFileSrc(asset.path),
+              };
+            }
+            return asset;
+          }),
+        );
 
         useProjectStore.setState({ mediaAssets: convertedAssets });
       }

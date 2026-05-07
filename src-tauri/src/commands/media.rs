@@ -110,13 +110,18 @@ pub fn extract_poster_frame(path: String, time: f64) -> Result<String, String> {
         return Err("ffmpeg not found. Please install FFmpeg: brew install ffmpeg".to_string());
     }
 
+    // Scale to 320px wide and encode as JPEG so the data URL stays small.
+    // Without scaling, a 4K source produces a >10 MB base64 string that breaks
+    // the project JSON, the React state, and the renderer.
     let output = Command::new("ffmpeg")
         .args(&[
             "-ss", &time.to_string(),
             "-i", &path,
             "-vframes", "1",
+            "-vf", "scale=320:-2",
+            "-q:v", "5",
             "-f", "image2",
-            "-vcodec", "png",
+            "-vcodec", "mjpeg",
             "pipe:1",
         ])
         .output()
@@ -128,5 +133,5 @@ pub fn extract_poster_frame(path: String, time: f64) -> Result<String, String> {
     }
 
     let encoded = base64::engine::general_purpose::STANDARD.encode(&output.stdout);
-    Ok(format!("data:image/png;base64,{}", encoded))
+    Ok(format!("data:image/jpeg;base64,{}", encoded))
 }
