@@ -71,7 +71,7 @@ function resolveTrackAtClientY(
 }
 
 export const Timeline: React.FC = () => {
-  const { tracks, clips, pixelsPerSecond, scrollLeft, setScrollLeft, getTimelineEndTime, addClip, addTrack, insertTrackAt, insertClipAtIndex, getTrackClips, updateClip, normalizeTrack } = useTimelineStore();
+  const { tracks, clips, pixelsPerSecond, zoomLevel, setZoom, scrollLeft, setScrollLeft, getTimelineEndTime, addClip, addTrack, insertTrackAt, insertClipAtIndex, getTrackClips, updateClip, normalizeTrack } = useTimelineStore();
 
   console.log("[TIMELINE] 🎬 Timeline render", {
     tracksCount: tracks.length,
@@ -429,6 +429,31 @@ export const Timeline: React.FC = () => {
     setScrollLeft(target.scrollLeft);
   };
 
+  // Pinch-to-zoom (macOS trackpad sends ctrlKey=true) and Cmd/Ctrl+wheel zoom.
+  // Anchors the time under the cursor so zoom feels natural.
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const cursorX = e.clientX - rect.left;
+    const cursorXContent = cursorX + container.scrollLeft;
+    const timeAtCursor = cursorXContent / Math.max(1, pixelsPerSecond);
+    // deltaY > 0 = pinch out / wheel down → zoom out. Inverted for natural feel.
+    const factor = Math.exp(-e.deltaY * 0.01);
+    const next = Math.min(5, Math.max(0.5, zoomLevel * factor));
+    if (next === zoomLevel) return;
+    setZoom(next);
+    // After zoom, scroll so the time under the cursor stays under the cursor.
+    requestAnimationFrame(() => {
+      if (!containerRef.current) return;
+      const newPPS = 100 * next;
+      const newScrollLeft = Math.max(0, timeAtCursor * newPPS - cursorX);
+      containerRef.current.scrollLeft = newScrollLeft;
+    });
+  };
+
   useEffect(() => {
     const timelineEnd = getTimelineEndTime();
     setDuration(Math.max(timelineEnd, 10));
@@ -681,7 +706,7 @@ export const Timeline: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         <TrackList />
 
-        <div ref={containerRef} onScroll={handleScroll} onClick={seekFromPointer} id="timeline-tracks-container" className={`flex-1 overflow-x-auto overflow-y-auto scrollbar-thin px-1 relative transition-colors border-l border-[#2b3442] ${isDraggingOver ? "bg-cyan-500/10 ring-2 ring-cyan-500/50 ring-inset" : ""}`}>
+        <div ref={containerRef} onScroll={handleScroll} onWheel={handleWheel} onClick={seekFromPointer} id="timeline-tracks-container" className={`flex-1 overflow-x-auto overflow-y-auto scrollbar-thin px-1 relative transition-colors border-l border-[#2b3442] ${isDraggingOver ? "bg-cyan-500/10 ring-2 ring-cyan-500/50 ring-inset" : ""}`}>
           {clips.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex items-center gap-3 text-[#6b7280] pointer-events-none">
